@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Une petite question pour Elyna 💗</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; overflow: hidden;
+    display: grid; place-items: center;
+    font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    background: radial-gradient(circle at 20% 20%, #ffe2ef, transparent 35%),
+                radial-gradient(circle at 80% 80%, #ffc2dc, transparent 35%),
+                linear-gradient(135deg, #fff0f6, #ffd6e8);
+    color: #8e2455;
+  }
+  .heart-bg { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .heart-bg span {
+    position: absolute; bottom: -50px; color: #ff6fa9; opacity: .42;
+    animation: floatUp linear infinite;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    from { transform: translateY(0) rotate(0deg); opacity: 0; }
+    15% { opacity: .45; }
+    to { transform: translateY(-115vh) rotate(35deg); opacity: 0; }
+  }
+  .card {
+    position: relative; z-index: 2; width: min(92vw, 520px);
+    padding: 42px 28px 36px; text-align: center;
+    border: 1px solid rgba(255,255,255,.85);
+    border-radius: 30px; background: rgba(255,255,255,.78);
+    box-shadow: 0 20px 70px rgba(183, 54, 111, .18);
+    backdrop-filter: blur(12px);
+    animation: appear .65s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(22px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .top-heart { font-size: 42px; margin-bottom: 8px; animation: pulse 1.3s infinite; }
+  @keyframes pulse { 50% { transform: scale(1.18); } }
+  .step { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #d45d91; font-weight: 800; }
+  h1 { font-size: clamp(23px, 5vw, 31px); line-height: 1.25; margin: 13px 0 28px; }
+  .buttons { display: flex; justify-content: center; gap: 16px; min-height: 54px; position: relative; }
+  button {
+    border: 0; border-radius: 999px; padding: 14px 30px; min-width: 112px;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+  }
+  button:hover { transform: translateY(-3px); }
+  button:active { transform: scale(.96); }
+  #yes { color: white; background: linear-gradient(135deg, #ff5b9c, #e9367e); box-shadow: 0 8px 20px #f48ab5; }
+  #no { color: #bd477b; background: #ffe2ef; border: 1px solid #ffc1db; }
+  .hint { margin-top: 24px; font-size: 12px; color: #c47a9c; }
+  .final { animation: appear .7s both; }
+  .final h1 { color: #e9367e; }
+  .burst {
+    position: fixed; z-index: 5; pointer-events: none;
+    font-size: 25px; animation: burst 2.6s ease-out forwards;
+  }
+  @keyframes burst {
+    0% { transform: translate(0,0) scale(.4) rotate(0); opacity: 0; }
+    12% { opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(1.5) rotate(var(--r)); opacity: 0; }
+  }
+  @media (max-width: 420px) {
+    .card { padding: 34px 18px 30px; }
+    button { min-width: 100px; padding: 13px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="heart-bg" id="heartBg"></div>
+<main class="card" id="card">
+  <div class="top-heart">💗</div>
+  <div class="step" id="step">Question 1 / 3</div>
+  <h1 id="question">Elyna est-tu une flockette ?</h1>
+  <div class="buttons" id="buttons">
+    <button id="yes" type="button">Oui 💖</button>
+    <button id="no" type="button">Non 🙃</button>
+  </div>
+  <div class="hint">Choisis avec ton cœur… 💕</div>
+</main>
+<script>
+const questions = [
+  "Elyna est-tu une flockette ?",
+  "Elyna, veux-tu te marier avec Nahd ?",
+  "Elyna, veux-tu faire des bébés Léna avec Gabriel ?"
+];
+let current = 0;
+const card = document.getElementById('card');
+const question = document.getElementById('question');
+const step = document.getElementById('step');
+const yes = document.getElementById('yes');
+const no = document.getElementById('no');
+const buttons = document.getElementById('buttons');
+
+function moveNoButton() {
+  const rect = no.getBoundingClientRect();
+  const padding = 12;
+  const maxX = Math.max(padding, window.innerWidth - rect.width - padding);
+  const maxY = Math.max(padding, window.innerHeight - rect.height - padding);
+  no.style.position = 'fixed';
+  no.style.left = Math.round(padding + Math.random() * (maxX - padding)) + 'px';
+  no.style.top = Math.round(padding + Math.random() * (maxY - padding)) + 'px';
+  no.style.zIndex = '10';
+}
+no.addEventListener('mouseenter', moveNoButton);
+no.addEventListener('touchstart', (event) => { event.preventDefault(); moveNoButton(); }, {passive:false});
+no.addEventListener('click', moveNoButton);
+
+yes.addEventListener('click', () => {
+  if (current < questions.length - 1) {
+    current++;
+    no.style.position = '';
+    no.style.left = '';
+    no.style.top = '';
+    no.style.zIndex = '';
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = 'appear .55s cubic-bezier(.2,.8,.2,1) both';
+    step.textContent = `Question ${current + 1} / 3`;
+    question.textContent = questions[current];
+  } else {
+    card.innerHTML = `
+      <div class="top-heart">💞</div>
+      <div class="step">C'est officiel…</div>
+      <section class="final">
+        <h1>OUIIIII ! 💍💗</h1>
+        <p>Gabriel et Elyna : que du love, des cœurs et du bonheur !</p>
+        <div style="font-size:34px;margin-top:20px">💖 💘 💝 💗 💓</div>
+      </section>`;
+    launchHearts();
+  }
+});
+
+function launchHearts() {
+  const symbols = ['💗','💖','💘','💕','💞','❤️','💝','💓'];
+  for (let i = 0; i < 95; i++) {
+    setTimeout(() => {
+      const heart = document.createElement('span');
+      heart.className = 'burst';
+      heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      heart.style.left = (Math.random() * 100) + 'vw';
+      heart.style.top = (45 + Math.random() * 45) + 'vh';
+      heart.style.setProperty('--x', (Math.random() * 240 - 120) + 'px');
+      heart.style.setProperty('--y', (-180 - Math.random() * 520) + 'px');
+      heart.style.setProperty('--r', (Math.random() * 100 - 50) + 'deg');
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 2800);
+    }, i * 28);
+  }
+}
+
+const bg = document.getElementById('heartBg');
+for (let i = 0; i < 32; i++) {
+  const heart = document.createElement('span');
+  heart.textContent = ['♡','♥','💗'][i % 3];
+  heart.style.left = Math.random() * 100 + '%';
+  heart.style.fontSize = (14 + Math.random() * 25) + 'px';
+  heart.style.animationDuration = (8 + Math.random() * 12) + 's';
+  heart.style.animationDelay = (-Math.random() * 18) + 's';
+  bg.appendChild(heart);
+}
+</script>
+</body>
+</html>
